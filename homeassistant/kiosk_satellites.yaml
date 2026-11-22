@@ -1,0 +1,71 @@
+# =============================================================================
+# Kiosk Satellites — Package (data source for the Alfred kiosk-satellite workflow)
+# =============================================================================
+# Deploy to /config/packages/kiosk_satellites.yaml (needs
+# `homeassistant: packages: !include_dir_named packages` in configuration.yaml).
+#
+#   sensor.kiosk_satellites   state = number of satellites
+#                             attribute `satellites` = list of
+#                             {device_id, name, model, sw_version, area, ip,
+#                              configuration_url}
+#
+# A device counts as a Kiosk Satellite when it belongs to the ESPHome
+# integration and its model/manufacturer mentions "kiosk", or it owns an entity
+# only Kiosk Satellite creates (hold_mode switch, dashboard_view select,
+# screensaver_active switch), or an entity id contains "kiosk_satellite".
+# The ip is the first sensor on the device whose state is an IPv4 address.
+#
+# Trigger-based so it isn't re-rendered on every state change: refreshes at
+# startup, on template reload, when the device registry changes, and every
+# 5 minutes. The Alfred workflow reads it with GET /api/states, which a
+# non-admin user's token can do.
+#
+# Debug: paste the `satellites` template into Developer Tools → Template.
+# =============================================================================
+
+template:
+  - triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: event
+        event_type: event_template_reloaded
+      - trigger: event
+        event_type: device_registry_updated
+      - trigger: time_pattern
+        minutes: "/5"
+    actions:
+      - variables:
+          sats: >-
+            {%- set ns = namespace(devs=[], out=[]) -%}
+            {%- for e in integration_entities('esphome') -%}
+              {%- set d = device_id(e) -%}
+              {%- if d and d not in ns.devs -%}{%- set ns.devs = ns.devs + [d] -%}{%- endif -%}
+            {%- endfor -%}
+            {%- for d in ns.devs -%}
+              {%- set ents = device_entities(d) -%}
+              {%- set model = (device_attr(d, 'model') or '') ~ ' ' ~ (device_attr(d, 'manufacturer') or '') -%}
+              {%- set markers = ents | select('search', '_hold_mode$|_dashboard_view$|_screensaver_active$|kiosk_satellite') | list -%}
+              {%- if markers | count > 0 or 'kiosk' in model | lower -%}
+                {%- set ip = namespace(v='') -%}
+                {%- for e in ents if e.startswith('sensor.') and not ip.v -%}
+                  {%- if states(e) is match('^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$') -%}{%- set ip.v = states(e) -%}{%- endif -%}
+                {%- endfor -%}
+                {%- set ns.out = ns.out + [{
+                  'device_id': d,
+                  'name': device_attr(d, 'name_by_user') or device_attr(d, 'name') or d,
+                  'model': device_attr(d, 'model') or '',
+                  'sw_version': device_attr(d, 'sw_version') or '',
+                  'area': area_name(d) or '',
+                  'ip': ip.v,
+                  'configuration_url': device_attr(d, 'configuration_url') or ''
+                }] -%}
+              {%- endif -%}
+            {%- endfor -%}
+            {{ ns.out | sort(attribute='name') }}
+    sensor:
+      - name: Kiosk Satellites
+        unique_id: kiosk_satellites
+        icon: mdi:tablet-dashboard
+        state: "{{ sats | count }}"
+        attributes:
+          satellites: "{{ sats }}"

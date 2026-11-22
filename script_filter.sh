@@ -1,5 +1,7 @@
 #!/bin/bash
-# Alfred Script Filter: list Kiosk Satellite tablets known to Home Assistant.
+# Alfred Script Filter: list Kiosk Satellite tablets known to Home Assistant,
+# read from the sensor.kiosk_satellites attribute (GET /api/states, works with a
+# non-admin token).
 #
 # Workflow variables (Alfred user configuration, or plain env when run by hand):
 #   ha_url              Home Assistant base URL (default http://homeassistant.local:8123)
@@ -13,17 +15,19 @@
 #   host_overrides      Optional "name=host" pairs, comma or newline separated.
 #                       Matched case-insensitively against the device name.
 #                       Also used as a static list when HA is unreachable.
+#   ha_sensor           Entity holding the list (default sensor.kiosk_satellites,
+#                       from homeassistant/kiosk_satellites.yaml)
 #
-# Testing: KS_MOCK_JSON=<file> skips HA and reads the template output from a file.
+# Testing: KS_MOCK_JSON=<file> skips HA and reads a satellites JSON array from a file.
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 set -uo pipefail
 
-HERE="$(cd "$(dirname "$0")" && pwd)"
 ha_url="${ha_url:-http://homeassistant.local:8123}"
 ha_url="${ha_url%/}"
 default_template='http://{host}:2324/'
 admin_url_template="${admin_url_template:-$default_template}"
 host_overrides="${host_overrides:-}"
+ha_sensor="${ha_sensor:-sensor.kiosk_satellites}"
 
 error_item() { # title subtitle
   jq -n --arg t "$1" --arg s "$2" '{items: [{title: $t, subtitle: $s, valid: false}]}'
@@ -45,10 +49,14 @@ fetch_from_ha() {
   local curl_tls=(-k)
   [ "${ha_verify_ssl:-0}" = "1" ] && curl_tls=()
   # Token goes to curl via a config on stdin, so it never shows up in `ps`.
-  jq -n --rawfile t "$HERE/satellites.jinja" '{template: $t}' |
-    curl -sS --fail -m 8 "${curl_tls[@]}" -X POST "$ha_url/api/template" \
-      -H "Content-Type: application/json" --data-binary @- \
-      -K <(printf 'header = "Authorization: Bearer %s"\n' "$token")
+  # 404 means the sensor isn't deployed yet: exit 4 so we can say so.
+  local body code
+  body="$(curl -sS -m 8 "${curl_tls[@]}" -w '\n%{http_code}' "$ha_url/api/states/$ha_sensor" \
+    -K <(printf 'header = "Authorization: Bearer %s"\n' "$token"))" || return 1
+  code="${body##*$'\n'}"; body="${body%$'\n'*}"
+  [ "$code" = "404" ] && return 4
+  [ "$code" = "200" ] || { echo "HTTP $code" >&2; return 1; }
+  jq -c '.attributes.satellites // []' <<<"$body"
 }
 
 if [ -n "${KS_MOCK_JSON:-}" ]; then
@@ -60,6 +68,9 @@ fi
 if [ $rc -ne 0 ] || ! jq -e 'type == "array"' >/dev/null 2>&1 <<<"$raw"; then
   if [ -n "$host_overrides" ]; then
     raw='[]' # fall back to the static list below
+  elif [ $rc -eq 4 ]; then
+    error_item "$ha_sensor not found in Home Assistant" "Deploy homeassistant/kiosk_satellites.yaml as a package (see README)"
+    exit 0
   elif [ $rc -eq 3 ]; then
     error_item "Home Assistant token not set" "Set ha_token or ha_token_ref in the workflow's Configure Workflow panel"
     exit 0
