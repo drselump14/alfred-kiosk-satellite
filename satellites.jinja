@@ -1,0 +1,33 @@
+{#- Rendered by Home Assistant's /api/template. Lists ESPHome-integration
+    devices that look like Kiosk Satellite tablets, as a JSON array. A device
+    counts when its model/manufacturer mentions "kiosk", or it owns one of the
+    entities only Kiosk Satellite creates (hold_mode switch, dashboard_view
+    select, screensaver_active switch), or an entity id contains
+    "kiosk_satellite". The host is taken from an entity whose state is an IPv4
+    address, else from the device's configuration_url. -#}
+{%- set ns = namespace(devs=[], out=[]) -%}
+{%- for e in integration_entities('esphome') -%}
+  {%- set d = device_id(e) -%}
+  {%- if d and d not in ns.devs -%}{%- set ns.devs = ns.devs + [d] -%}{%- endif -%}
+{%- endfor -%}
+{%- for d in ns.devs -%}
+  {%- set ents = device_entities(d) -%}
+  {%- set model = (device_attr(d, 'model') or '') ~ ' ' ~ (device_attr(d, 'manufacturer') or '') -%}
+  {%- set markers = ents | select('search', '_hold_mode$|_dashboard_view$|_screensaver_active$|kiosk_satellite') | list -%}
+  {%- if markers | count > 0 or 'kiosk' in model | lower -%}
+    {%- set ip = namespace(v='') -%}
+    {%- for e in ents if e.startswith('sensor.') and not ip.v -%}
+      {%- if states(e) is match('^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$') -%}{%- set ip.v = states(e) -%}{%- endif -%}
+    {%- endfor -%}
+    {%- set ns.out = ns.out + [{
+      'device_id': d,
+      'name': device_attr(d, 'name_by_user') or device_attr(d, 'name') or d,
+      'model': device_attr(d, 'model') or '',
+      'sw_version': device_attr(d, 'sw_version') or '',
+      'area': area_name(d) or '',
+      'ip': ip.v,
+      'configuration_url': device_attr(d, 'configuration_url') or ''
+    }] -%}
+  {%- endif -%}
+{%- endfor -%}
+{{ ns.out | sort(attribute='name') | to_json }}
