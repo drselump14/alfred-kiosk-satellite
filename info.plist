@@ -8,6 +8,58 @@
 	<string>Internet</string>
 	<key>connections</key>
 	<dict>
+		<key>25B463EB-BF36-4850-9701-5E2A4719EA05</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>3F560172-B134-4BA5-8BF0-5CB33A68F818</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>33937967-E8DA-4291-9C17-CFDF06FB7D14</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>25B463EB-BF36-4850-9701-5E2A4719EA05</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>54EC6CB0-15C7-4FDB-BABD-2EA0BB02E2D2</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>33937967-E8DA-4291-9C17-CFDF06FB7D14</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>64DF9E90-91F2-489F-ADC9-86A9B1C7D8A8</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>25B463EB-BF36-4850-9701-5E2A4719EA05</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>6A3F1C2E-8B4D-4E71-9F0A-1D2C3B4A5E61</key>
 		<array>
 			<dict>
@@ -35,6 +87,19 @@
 				<string>9C1E7A44-2F6B-4D83-A5E0-7B8C9D0E1F22</string>
 				<key>modifiers</key>
 				<integer>524288</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>E32E19C3-E766-49F3-9DF1-D25CF6A9BA6C</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>64DF9E90-91F2-489F-ADC9-86A9B1C7D8A8</string>
+				<key>modifiers</key>
+				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
 				<key>vitoclose</key>
@@ -124,6 +189,136 @@
 			<key>version</key>
 			<integer>2</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>{var:keyword}:token</string>
+				<key>subtext</key>
+				<string>Paste a long-lived token or an op://vault/item/field reference</string>
+				<key>text</key>
+				<string>Save Home Assistant token or op:// reference to Keychain</string>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>54EC6CB0-15C7-4FDB-BABD-2EA0BB02E2D2</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>{var:keyword}:url</string>
+				<key>subtext</key>
+				<string>e.g. https://192.0.2.20:8123 (used when the ha_url setting is empty)</string>
+				<key>text</key>
+				<string>Save Home Assistant URL to Keychain</string>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>E32E19C3-E766-49F3-9DF1-D25CF6A9BA6C</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argument</key>
+				<string></string>
+				<key>passthroughargument</key>
+				<false/>
+				<key>variables</key>
+				<dict>
+					<key>ks_account</key>
+					<string>ha_token</string>
+					<key>ks_value</key>
+					<string>{query}</string>
+				</dict>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.argument</string>
+			<key>uid</key>
+			<string>33937967-E8DA-4291-9C17-CFDF06FB7D14</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argument</key>
+				<string></string>
+				<key>passthroughargument</key>
+				<false/>
+				<key>variables</key>
+				<dict>
+					<key>ks_account</key>
+					<string>ha_url</string>
+					<key>ks_value</key>
+					<string>{query}</string>
+				</dict>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.argument</string>
+			<key>uid</key>
+			<string>64DF9E90-91F2-489F-ADC9-86A9B1C7D8A8</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string></string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string>set_token.sh</string>
+				<key>type</key>
+				<integer>8</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>25B463EB-BF36-4850-9701-5E2A4719EA05</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>Kiosk Satellite Admin</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>3F560172-B134-4BA5-8BF0-5CB33A68F818</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string>Pick a Kiosk Satellite tablet (from Home Assistant) and open its admin page in Firefox.
@@ -132,9 +327,46 @@
 - Cmd+Enter: open the device page in Home Assistant
 - Alt+Enter: copy the admin URL
 
+kadm:token &lt;token or op:// ref&gt; saves the HA token to the Keychain; kadm:url &lt;url&gt; saves the HA URL.
+
 See README.md in the source repo for setup.</string>
 	<key>uidata</key>
 	<dict>
+		<key>25B463EB-BF36-4850-9701-5E2A4719EA05</key>
+		<dict>
+			<key>xpos</key>
+			<integer>400</integer>
+			<key>ypos</key>
+			<integer>290</integer>
+		</dict>
+		<key>33937967-E8DA-4291-9C17-CFDF06FB7D14</key>
+		<dict>
+			<key>xpos</key>
+			<integer>260</integer>
+			<key>ypos</key>
+			<integer>240</integer>
+		</dict>
+		<key>3F560172-B134-4BA5-8BF0-5CB33A68F818</key>
+		<dict>
+			<key>xpos</key>
+			<integer>620</integer>
+			<key>ypos</key>
+			<integer>290</integer>
+		</dict>
+		<key>54EC6CB0-15C7-4FDB-BABD-2EA0BB02E2D2</key>
+		<dict>
+			<key>xpos</key>
+			<integer>60</integer>
+			<key>ypos</key>
+			<integer>220</integer>
+		</dict>
+		<key>64DF9E90-91F2-489F-ADC9-86A9B1C7D8A8</key>
+		<dict>
+			<key>xpos</key>
+			<integer>260</integer>
+			<key>ypos</key>
+			<integer>380</integer>
+		</dict>
 		<key>6A3F1C2E-8B4D-4E71-9F0A-1D2C3B4A5E61</key>
 		<dict>
 			<key>xpos</key>
@@ -148,6 +380,13 @@ See README.md in the source repo for setup.</string>
 			<integer>300</integer>
 			<key>ypos</key>
 			<integer>60</integer>
+		</dict>
+		<key>E32E19C3-E766-49F3-9DF1-D25CF6A9BA6C</key>
+		<dict>
+			<key>xpos</key>
+			<integer>60</integer>
+			<key>ypos</key>
+			<integer>360</integer>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
@@ -177,16 +416,16 @@ See README.md in the source repo for setup.</string>
 			<key>config</key>
 			<dict>
 				<key>default</key>
-				<string>http://homeassistant.local:8123</string>
-				<key>placeholder</key>
 				<string></string>
+				<key>placeholder</key>
+				<string>http://homeassistant.local:8123</string>
 				<key>required</key>
-				<true/>
+				<false/>
 				<key>trim</key>
 				<true/>
 			</dict>
 			<key>description</key>
-			<string>Base URL of Home Assistant</string>
+			<string>Base URL of Home Assistant. Leave empty to use the one saved with kadm:url, else http://homeassistant.local:8123.</string>
 			<key>label</key>
 			<string>Home Assistant URL</string>
 			<key>type</key>
@@ -207,7 +446,7 @@ See README.md in the source repo for setup.</string>
 				<true/>
 			</dict>
 			<key>description</key>
-			<string>op:// reference read with `op read` at runtime (preferred). Leave empty to use the plain token below.</string>
+			<string>op:// reference read with `op read` at runtime. Leave both token fields empty to use the Keychain (kadm:token), which survives re-imports.</string>
 			<key>label</key>
 			<string>HA token (1Password ref)</string>
 			<key>type</key>
@@ -228,7 +467,7 @@ See README.md in the source repo for setup.</string>
 				<true/>
 			</dict>
 			<key>description</key>
-			<string>Long-lived access token. Used only when the 1Password ref is empty. Stored in Alfred's prefs, not exported.</string>
+			<string>Long-lived access token; wins over the 1Password ref. Stored in Alfred prefs, which a re-import resets: prefer kadm:token (Keychain).</string>
 			<key>label</key>
 			<string>HA token (plain)</string>
 			<key>type</key>
@@ -322,7 +561,7 @@ See README.md in the source repo for setup.</string>
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>1.1.0</string>
+	<string>1.2.0</string>
 	<key>webaddress</key>
 	<string></string>
 </dict>
