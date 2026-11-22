@@ -14,11 +14,21 @@ kadm kitchen  filter by name, host, area or model
 
 ## Where the list comes from
 
-The Script Filter POSTs `satellites.jinja` to Home Assistant's
-`/api/template` endpoint. The template walks every ESPHome-integration device
-and keeps the ones that look like Kiosk Satellite tablets: model/manufacturer
-contains "kiosk", or the device owns a `*_hold_mode`, `*_dashboard_view` or
-`*_screensaver_active` entity, or an entity id contains `kiosk_satellite`.
+A small Home Assistant package, [`homeassistant/kiosk_satellites.yaml`](homeassistant/kiosk_satellites.yaml),
+builds the list inside HA as `sensor.kiosk_satellites` (state = count,
+attribute `satellites` = the list). Its template walks every ESPHome-integration
+device and keeps the ones that look like Kiosk Satellite tablets:
+model/manufacturer contains "kiosk", or the device owns a `*_hold_mode`,
+`*_dashboard_view` or `*_screensaver_active` entity, or an entity id contains
+`kiosk_satellite`. It refreshes at startup, on template reload, when the device
+registry changes, and every 5 minutes.
+
+The Script Filter only reads that sensor (`GET /api/states/sensor.kiosk_satellites`),
+so a token from a **non-admin** HA user is enough.
+
+To see what HA found, open Developer Tools → States and look at
+`sensor.kiosk_satellites`, or paste the template from the package into
+Developer Tools → Template.
 
 The host shown and used in the URL comes from, in order:
 
@@ -31,6 +41,12 @@ tablets have neither an IP sensor nor a configuration URL, fill
 `host_overrides`. Devices without a host stay in the list but can't be opened.
 
 ## Setup
+
+1. Copy `homeassistant/kiosk_satellites.yaml` to `/config/packages/` on your HA
+   (needs `homeassistant: packages: !include_dir_named packages` in
+   `configuration.yaml`) and restart HA, or reload Template entities.
+2. Optional but recommended: create a non-admin HA user (local network only) and
+   make a long-lived token for it (Profile → Security).
 
 Requires `jq` (`brew install jq`) and, for the 1Password option, the `op` CLI.
 
@@ -60,10 +76,10 @@ prompt) doesn't run on every keystroke.
 # Run the Script Filter against HA
 ha_token_ref='op://…' ./script_filter.sh | jq
 
-# Or against canned template output
-# (a JSON array shaped like the template's output)
+# Or against a canned list
+# (a JSON array shaped like the sensor's `satellites` attribute)
 KS_MOCK_JSON=/path/to/devices.json ./script_filter.sh | jq
 
 # Rebuild the package
-zip -j kiosk-satellite.alfredworkflow info.plist icon.png script_filter.sh open_url.sh satellites.jinja
+zip -j kiosk-satellite.alfredworkflow info.plist icon.png script_filter.sh open_url.sh
 ```
