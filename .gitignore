@@ -1,2 +1,5 @@
 .DS_Store
 *.alfredworkflow
+
+# Alfred saved settings (may hold ha_token)
+prefs.plist
